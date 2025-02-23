@@ -115,7 +115,7 @@ fig2B <- persistence_marg_pred %>%
             size=2, lineheight=.75) +
   geom_segment(data=fig2B_arrow, aes(xend=xend, color=ecotype),
                arrow=arrow(length=unit(0.2, "cm"))) +
-  scale_x_continuous(name="Difference in Persistence Proportion", limits=c(-1,1)) +
+  scale_x_continuous(name="Difference in Persistence Proportion between Ecotypes", limits=c(-1,1)) +
   scale_y_discrete(name="Water\nPotential\n(MPa)") +
   scale_fill_manual(values=setNames(ecotype_colors, c(FALSE, TRUE))) +
   scale_color_manual(values=ecotype_colors) +
@@ -128,8 +128,7 @@ fig2B <- persistence_marg_pred %>%
 fig2C_df <- persistence_marg_pred %>% 
   arrange(cold_stratification) %>% 
   group_by(.draw, ecotype, water_potential) %>% 
-  summarize(diff_p=diff(p), .groups="drop") %>% 
-  mutate(water_potential=fct_rev(water_potential))
+  summarize(diff_p=diff(p), .groups="drop")
 
 ### Find proportions of distribution above and below zero
 fig2C_dist_percents <- fig2C_df %>%
@@ -142,21 +141,17 @@ fig2C_dist_percents <- fig2C_df %>%
   pivot_longer(cols=c(above, below), names_to="response", values_to="label") %>% 
   mutate(
     label=paste0(format(round(label*100, 1), nsmall=1), "%"),
-    label=case_when(
-      label=="  5.1%" ~ " 5.0%",
-      label=="100.0%" ~ "100%",
-      label=="  0.0%" ~ "0%",
-      TRUE ~ label
-    ),
+    label=str_replace(label, "  ", ""),
+    label=str_replace(label, " ", ""),
     water_potential=case_when(
-      ecotype=="Semelparous"&water_potential=="-1" ~ 2.95,
+      ecotype=="Semelparous"&water_potential=="-1" ~ 0.95,
       ecotype=="Semelparous"&water_potential=="-0.5" ~ 1.95,
-      ecotype=="Semelparous"&water_potential=="0" ~ 0.95,
-      ecotype=="Iteroparous"&water_potential=="-1" ~ 3.05,
+      ecotype=="Semelparous"&water_potential=="0" ~ 2.95,
+      ecotype=="Iteroparous"&water_potential=="-1" ~ 1.05,
       ecotype=="Iteroparous"&water_potential=="-0.5" ~ 2.05,
-      ecotype=="Iteroparous"&water_potential=="0" ~ 1.05
+      ecotype=="Iteroparous"&water_potential=="0" ~ 3.05
     ),
-    diff_p=c(0.15, -0.75, 0.15, -0.15, 0.17, -0.15, 0.2, -0.15, 0.35, -0.15, 0.17, -0.15),
+    diff_p=c(0.15, -0.15, 0.15, -0.15, 0.15, -0.75, 0.17, -0.15, 0.35, -0.15, 0.22, -0.15),
     hjust=case_when(
       ecotype=="Semelparous" ~ 1,
       ecotype=="Iteroparous" ~ 0
@@ -166,7 +161,7 @@ fig2C_dist_percents <- fig2C_df %>%
 ### Create data.frame for text that will show direction of relationships
 fig2C_text <- data.frame(
   water_potential=.1,
-  diff_p=c(-0.65, 0.65),
+  diff_p=c(0.65, -0.65),
   label=c("More\nPersistence", "Less\nPersistence"),
   ecotype=factor(c("Semelparous", "Iteroparous"))
 )
@@ -190,7 +185,7 @@ fig2C <- ggplot(mapping=aes(y=diff_p, x=water_potential, fill=ecotype, color=eco
            side="right", scale=pscale*.75, normalize="groups",
            interval_color=NA, point_color=NA) +
   geom_text(data=fig2C_dist_percents, aes(label=label), hjust=fig2C_dist_percents$hjust, family="serif", size=3, 
-            color=c(ecotype_colors[1], "white", ecotype_colors[1], "white", ecotype_colors[1], ecotype_colors[1],
+            color=c(ecotype_colors[1], ecotype_colors[1], ecotype_colors[1], "white", ecotype_colors[1], "white",
                     ecotype_colors[2], ecotype_colors[2], "white", ecotype_colors[2], ecotype_colors[2], ecotype_colors[2])
             ) +
   geom_segment(data=fig2C_arrow, aes(yend=yend), color="black",
@@ -212,7 +207,7 @@ fig2C <- ggplot(mapping=aes(y=diff_p, x=water_potential, fill=ecotype, color=eco
 png("figures/figure2.png", width=7, height=8, units="in", res=1500)
 fig2A + fig2B + fig2C + 
   plot_layout(ncol=1) +
-  plot_annotation(tag_levels="A")
+  plot_annotation(tag_levels="a")
 dev.off()
 
 # Fig S1 -----------------------------------------------------------------------
