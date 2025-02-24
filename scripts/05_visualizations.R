@@ -10,7 +10,7 @@ water_potential_labeller <- paste(as.numeric(as.character(levels(germ_df$water_p
 names(water_potential_labeller) <- levels(germ_df$water_potential)
 ecotype_colors <- c("Semelparous"="grey75", "Iteroparous"="grey25")
 
-# Figure 2 ---------------------------------------------------------------------
+# Figure 1 ---------------------------------------------------------------------
 ## Wrangle raw data into persistence proportions
 persistence_raw_proportions <- germ_df %>% 
   group_by(site, seed_family, cold_stratification, water_potential, ecotype) %>% 
@@ -33,7 +33,7 @@ pscale <- 0.75
 palpha <- .9
 
 ## Fig 2A: Persistence proportions for each treatment combo
-fig2A <- ggplot(mapping=aes(x=water_potential, y=p, fill=ecotype, color=ecotype)) +
+fig1A <- ggplot(mapping=aes(x=water_potential, y=p, fill=ecotype, color=ecotype)) +
   geom_vline(xintercept=c("-1", "-0.5", "0"), color="black", linetype=2) +
   stat_halfeye(data=filter(persistence_marg_pred, ecotype=="Semelparous"), alpha=palpha,
                side="left", normalize="groups", scale=pscale*.75,
@@ -61,14 +61,14 @@ fig2A <- ggplot(mapping=aes(x=water_potential, y=p, fill=ecotype, color=ecotype)
 
 ## Fig 2B: Contrasts between ecotypes
 ### Create data.frame for text that will show direction of relationship
-fig2B_text <- data.frame(
+fig1B_text <- data.frame(
   water_potential=0.75,
   diff_p=c(-0.38, 0.35),
   label=c("More Semelparous\nPersistence", "More Iteroparous\nPersistence"),
   ecotype=factor(c("Semelparous", "Iteroparous"))
   )
 ### Create data.frame for arrows that will show direction of relationship
-fig2B_arrow <- data.frame(
+fig1B_arrow <- data.frame(
   water_potential=0.75,
   diff_p=c(-0.7, 0.68),
   xend=c(-1,1),
@@ -76,7 +76,7 @@ fig2B_arrow <- data.frame(
 )
 
 ### Find proportions of distribution above and below zero
-fig2B_dist_percents <- persistence_marg_pred %>%
+fig1B_dist_percents <- persistence_marg_pred %>%
   arrange(ecotype) %>% 
   group_by(.draw, cold_stratification, water_potential) %>% 
   summarize(diff_p=diff(p), .groups="drop") %>% 
@@ -98,7 +98,7 @@ fig2B_dist_percents <- persistence_marg_pred %>%
     )
 
 ### Plot Fig 2B
-fig2B <- persistence_marg_pred %>%
+fig1B <- persistence_marg_pred %>%
   arrange(ecotype) %>% 
   group_by(.draw, cold_stratification, water_potential) %>% 
   summarize(diff_p=diff(p), .groups="drop") %>% 
@@ -107,13 +107,13 @@ fig2B <- persistence_marg_pred %>%
   geom_vline(xintercept=0, linetype=2, color="black") +
   stat_eye(aes(fill=after_stat(x>0)), alpha=palpha,
            side="top", normalize="groups", interval_color=NA, point_color=NA) +
-  geom_text(data=fig2B_dist_percents, aes(label=label), family="serif", size=3, 
+  geom_text(data=fig1B_dist_percents, aes(label=label), family="serif", size=3, 
             color=c(ecotype_colors[2], ecotype_colors[1], ecotype_colors[2], "white", ecotype_colors[2], "white",
                     ecotype_colors[2], ecotype_colors[1], "white", "white", ecotype_colors[2], ecotype_colors[1])
             ) +
-  geom_text(data=fig2B_text, aes(label=label, color=ecotype), family="serif",
+  geom_text(data=fig1B_text, aes(label=label, color=ecotype), family="serif",
             size=2, lineheight=.75) +
-  geom_segment(data=fig2B_arrow, aes(xend=xend, color=ecotype),
+  geom_segment(data=fig1B_arrow, aes(xend=xend, color=ecotype),
                arrow=arrow(length=unit(0.2, "cm"))) +
   scale_x_continuous(name="Difference in Persistence Proportion between Ecotypes", limits=c(-1,1)) +
   scale_y_discrete(name="Water\nPotential\n(MPa)") +
@@ -125,13 +125,13 @@ fig2B <- persistence_marg_pred %>%
 
 
 ## Fig 2C: Effects of cold stratification
-fig2C_df <- persistence_marg_pred %>% 
+fig1C_df <- persistence_marg_pred %>% 
   arrange(cold_stratification) %>% 
   group_by(.draw, ecotype, water_potential) %>% 
   summarize(diff_p=diff(p), .groups="drop")
 
 ### Find proportions of distribution above and below zero
-fig2C_dist_percents <- fig2C_df %>%
+fig1C_dist_percents <- fig1C_df %>%
   group_by(ecotype, water_potential) %>%
   summarize(
     above=mean(diff_p>0),
@@ -159,7 +159,7 @@ fig2C_dist_percents <- fig2C_df %>%
   )
 
 ### Create data.frame for text that will show direction of relationships
-fig2C_text <- data.frame(
+fig1C_text <- data.frame(
   water_potential=.1,
   diff_p=c(0.65, -0.65),
   label=c("More\nPersistence", "Less\nPersistence"),
@@ -167,7 +167,7 @@ fig2C_text <- data.frame(
 )
 
 ### Create data.frame for arrows that will show direction of relationsip
-fig2C_arrow <- data.frame(
+fig1C_arrow <- data.frame(
   water_potential=0.075,
   diff_p=c(-0.4, 0.4),
   yend=c(-.9,.9),
@@ -175,22 +175,22 @@ fig2C_arrow <- data.frame(
   )
 
 ### Plot Fig 2C
-fig2C <- ggplot(mapping=aes(y=diff_p, x=water_potential, fill=ecotype, color=ecotype)) +
+fig1C <- ggplot(mapping=aes(y=diff_p, x=water_potential, fill=ecotype, color=ecotype)) +
   geom_vline(xintercept=c("-1", "-0.5", "0"), color="black", linetype=2) +
   geom_hline(yintercept=0, linetype=2, color="black") +
-  stat_eye(data=filter(fig2C_df, ecotype=="Semelparous"), alpha=palpha,
+  stat_eye(data=filter(fig1C_df, ecotype=="Semelparous"), alpha=palpha,
            side="left", scale=pscale*.75, normalize="groups",
            interval_color=NA, point_color=NA) +
-  stat_eye(data=filter(fig2C_df, ecotype=="Iteroparous"), alpha=palpha,
+  stat_eye(data=filter(fig1C_df, ecotype=="Iteroparous"), alpha=palpha,
            side="right", scale=pscale*.75, normalize="groups",
            interval_color=NA, point_color=NA) +
-  geom_text(data=fig2C_dist_percents, aes(label=label), hjust=fig2C_dist_percents$hjust, family="serif", size=3, 
+  geom_text(data=fig1C_dist_percents, aes(label=label), hjust=fig1C_dist_percents$hjust, family="serif", size=3, 
             color=c(ecotype_colors[1], ecotype_colors[1], ecotype_colors[1], "white", ecotype_colors[1], "white",
                     ecotype_colors[2], ecotype_colors[2], "white", ecotype_colors[2], ecotype_colors[2], ecotype_colors[2])
             ) +
-  geom_segment(data=fig2C_arrow, aes(yend=yend), color="black",
+  geom_segment(data=fig1C_arrow, aes(yend=yend), color="black",
                arrow=arrow(length=unit(0.2, "cm"))) +
-  geom_text(data=fig2C_text, aes(label=label), color="black", family="serif",
+  geom_text(data=fig1C_text, aes(label=label), color="black", family="serif",
             size=2, lineheight=.75, hjust=0) +
   scale_y_continuous(name="Effect of Cold\nStratification", limits=c(-1,1)) +
   scale_x_discrete(name="Water Potential (MPa)") +
@@ -204,13 +204,13 @@ fig2C <- ggplot(mapping=aes(y=diff_p, x=water_potential, fill=ecotype, color=eco
   )
 
 ## Write Figure 2
-png("figures/figure2.png", width=7, height=8, units="in", res=1500)
-fig2A + fig2B + fig2C + 
+png("figures/figure1.png", width=7, height=8, units="in", res=1500)
+fig1A + fig1B + fig1C + 
   plot_layout(ncol=1) +
   plot_annotation(tag_levels="a")
 dev.off()
 
-# Fig S1 -----------------------------------------------------------------------
+# Fig 2 -----------------------------------------------------------------------
 # Within and between population variation in persistence in response to treatments
 ## Wrangle raw data into persistence proportions
 persistence_raw_proportions <- germ_df %>% 
@@ -252,7 +252,7 @@ persistence_cond_spag <- persistence_cond_pred %>%
   filter(.draw %in% draws_sample)
 
 ## Plot Fig S1
-figS1 <- ggplot(mapping=aes(x=cold_stratification, y=p, fill=ecotype)) +
+fig2 <- ggplot(mapping=aes(x=cold_stratification, y=p, fill=ecotype)) +
   stat_eye(data=filter(persistence_cond_pred, cold_stratification=="Not cold stratified") %>%
              mutate(water_potential=fct_rev(water_potential)),
            side="left", normalize="groups", scale=pscale, 
@@ -283,8 +283,8 @@ figS1 <- ggplot(mapping=aes(x=cold_stratification, y=p, fill=ecotype)) +
         axis.text.x=element_text(size=8))
 
 ## Write Fig S1
-png("figures/figureS1.png", width=10, height=6, units="in", res=1000)
-figS1
+png("figures/figure2.png", width=10, height=6, units="in", res=1000)
+fig2
 dev.off()
 
 # Fig S2 -----------------------------------------------------------------------
