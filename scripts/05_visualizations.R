@@ -162,7 +162,7 @@ fig1C_dist_percents <- fig1C_df %>%
 fig1C_text <- data.frame(
   water_potential=.1,
   diff_p=c(0.65, -0.65),
-  label=c("More\nPersistence", "Less\nPersistence"),
+  label=c("Increased\nPersistence", "Decreased\nPersistence"),
   ecotype=factor(c("Semelparous", "Iteroparous"))
 )
 
@@ -210,7 +210,7 @@ fig1A + fig1B + fig1C +
   plot_annotation(tag_levels="a")
 dev.off()
 
-# Fig 2 -----------------------------------------------------------------------
+ # Fig 2 -----------------------------------------------------------------------
 # Within and between population variation in persistence in response to treatments
 ## Wrangle raw data into persistence proportions
 persistence_raw_proportions <- germ_df %>% 
